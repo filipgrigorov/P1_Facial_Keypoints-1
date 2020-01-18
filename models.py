@@ -66,8 +66,8 @@ class Net(nn.Module):
         self.conv6 = ConvBatch2d(256, 512, 3)
         #[512x10x10]
         self.pool5 = nn.MaxPool2d(2, 2)
-        #[512x5x5] -> 2560
-        self.fc1 = nn.Linear(2560, 1000)
+        #[512x5x5] -> 12800
+        self.fc1 = nn.Linear(12800, 1000)
         self.dropout1 = nn.Dropout(p=0.1)
         self.fc2 = nn.Linear(1000, 1000)
         self.dropout2 = nn.Dropout(p=0.2)
@@ -138,7 +138,7 @@ class Net(nn.Module):
             print('{}: {}'.format(self.pool5._get_name(), x.size()))
             print('')
 
-        x = x.view(-1, x.size(0) * x.size(1) * x.size(2))
+        x = x.view(-1, x.size(1) * x.size(2) * x.size(3))
 
         if __debug__:
             print('')
