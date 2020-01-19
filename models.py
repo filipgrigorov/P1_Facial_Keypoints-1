@@ -31,6 +31,8 @@ class ConvBatch2d(nn.Module):
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding)
         self.batch2d = nn.BatchNorm2d(out_channels)
 
+        self.weight = self.conv.weight.data
+
     def forward(self, x):
         x = self.conv(x)
         x = self.batch2d(x)
