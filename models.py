@@ -10,6 +10,7 @@ import torch.nn.init as I
 is_debug = False
 
 def print_layers(net):
+    global is_debug
     is_debug = True
     print('\n Number of learnable parameters: ')
     nparams = 0
@@ -48,48 +49,30 @@ class Net(nn.Module):
         # 1 input image channel (grayscale), 32 output channels/feature maps, 5x5 square convolution kernel
 
         #[1x224x224]
-        self.conv1 = ConvBatch2d(1, 32, 3)
-        #[32x222x222]
-        self.conv2 = ConvBatch2d(32, 32, 3)
-        #[32x220x220]
+        self.conv1 = ConvBatch2d(1, 32, 5)
         self.pool1 = nn.MaxPool2d(2, 2)
 
-        #[32x110x110]
-        self.conv3 = ConvBatch2d(32, 64, 3)
-        #[64x108x108]
+        self.conv2 = ConvBatch2d(32, 32, 3)
         self.pool2 = nn.MaxPool2d(2, 2)
 
-        #[64x54x54]
-        self.conv4 = ConvBatch2d(64, 128, 3)
-        #[128x52x52]
+        self.conv3 = ConvBatch2d(32, 64, 3)
         self.pool3 = nn.MaxPool2d(2, 2)
 
-        #[128x26x26]
-        self.conv5 = ConvBatch2d(128, 256, 3)
-        #[256x24x24]
+        self.conv4 = ConvBatch2d(64, 128, 3)
         self.pool4 = nn.MaxPool2d(2, 2)
 
-        #[256x12x12]
-        self.conv6 = ConvBatch2d(256, 512, 3)
-        #[512x10x10]
+        self.conv5 = ConvBatch2d(128, 256, 3)
         self.pool5 = nn.MaxPool2d(2, 2)
+
+        self.conv6 = ConvBatch2d(256, 512, 3)
+        self.pool6 = nn.MaxPool2d(2, 2)
 
         self.dropout1 = nn.Dropout2d(p=0.1)
 
-        #[512x5x5] -> 12800
-        self.fc1 = nn.Linear(12800, 10000)
+        self.fc1 = nn.Linear(512, 256)
         self.dropout2 = nn.Dropout(p=0.2)
 
-        self.fc2 = nn.Linear(10000, 5000)
-        self.dropout3 = nn.Dropout(p=0.3)
-
-        self.fc3 = nn.Linear(5000, 1000)
-        self.dropout4 = nn.Dropout(p=0.4)
-
-        self.fc4 = nn.Linear(1000, 256)
-        self.dropout5 = nn.Dropout(p=0.5)
-
-        self.fc5 = nn.Linear(256, 136)
+        self.fc2 = nn.Linear(256, 136)
 
         ## Note that among the layers to add, consider including:
         # maxpooling layers, multiple conv layers, fully-connected layers, and other layers (such as dropout or batch normalization) to avoid overfitting
@@ -103,55 +86,69 @@ class Net(nn.Module):
             print('')
             print('{}: {}'.format(self.conv1._get_name(), x.size()))
             print('')
-        x = self.conv2(x)
-        if is_debug:
-            print('')
-            print('{}: {}'.format(self.conv2._get_name(), x.size()))
-            print('')
         x = self.pool1(x)
         if is_debug:
             print('')
             print('{}: {}'.format(self.pool1._get_name(), x.size()))
             print('')
-        x = self.conv3(x)
+
+        x = self.conv2(x)
         if is_debug:
             print('')
-            print('{}: {}'.format(self.conv3._get_name(), x.size()))
+            print('{}: {}'.format(self.conv2._get_name(), x.size()))
             print('')
         x = self.pool2(x)
         if is_debug:
             print('')
             print('{}: {}'.format(self.pool2._get_name(), x.size()))
             print('')
-        x = self.conv4(x)
+
+        x = self.conv3(x)
         if is_debug:
             print('')
-            print('{}: {}'.format(self.conv4._get_name(), x.size()))
+            print('{}: {}'.format(self.conv3._get_name(), x.size()))
             print('')
+
         x = self.pool3(x)
         if is_debug:
             print('')
             print('{}: {}'.format(self.pool3._get_name(), x.size()))
             print('')
-        x = self.conv5(x)
+
+        x = self.conv4(x)
         if is_debug:
             print('')
-            print('{}: {}'.format(self.conv5._get_name(), x.size()))
+            print('{}: {}'.format(self.conv4._get_name(), x.size()))
             print('')
+
         x = self.pool4(x)
         if is_debug:
             print('')
             print('{}: {}'.format(self.pool4._get_name(), x.size()))
             print('')
+
+        x = self.conv5(x)
+        if is_debug:
+            print('')
+            print('{}: {}'.format(self.conv5._get_name(), x.size()))
+            print('')
+
+        x = self.pool5(x)
+        if is_debug:
+            print('')
+            print('{}: {}'.format(self.pool5._get_name(), x.size()))
+            print('')
+
         x = self.conv6(x)
         if is_debug:
             print('')
             print('{}: {}'.format(self.conv6._get_name(), x.size()))
             print('')
-        x = self.pool5(x)
+
+        x = self.pool6(x)
         if is_debug:
             print('')
-            print('{}: {}'.format(self.pool5._get_name(), x.size()))
+            print('{}: {}'.format(self.pool6._get_name(), x.size()))
             print('')
 
         x = self.dropout1(x)
@@ -170,31 +167,10 @@ class Net(nn.Module):
             print('')
         x = self.dropout2(x)
 
-        x = F.leaky_relu(self.fc2(x))
+        x = self.fc2(x)
         if is_debug:
             print('')
             print('{}: {}'.format(self.fc2._get_name(), x.size()))
-            print('')
-        x = self.dropout3(x)
-
-        x = F.leaky_relu(self.fc3(x))
-        if is_debug:
-            print('')
-            print('{}: {}'.format(self.fc3._get_name(), x.size()))
-            print('')
-        x = self.dropout4(x)
-
-        x = F.leaky_relu(self.fc4(x))
-        if is_debug:
-            print('')
-            print('{}: {}'.format(self.fc4._get_name(), x.size()))
-            print('')
-        x = self.dropout5(x)
-
-        x = self.fc5(x)
-        if is_debug:
-            print('')
-            print('{}: {}'.format(self.fc5._get_name(), x.size()))
             print('')
 
         # a modified x, having gone through all the layers of your model, should be returned
