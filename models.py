@@ -72,7 +72,7 @@ class Net(nn.Module):
         self.dropout1 = nn.Dropout2d(p=0.1)
 
         self.fc1 = nn.Linear(512, 256)
-        self.dropout2 = nn.Dropout(p=0.2)
+        self.dropout2 = nn.Dropout(p=0.3)
 
         self.fc2 = nn.Linear(256, 136)
 
