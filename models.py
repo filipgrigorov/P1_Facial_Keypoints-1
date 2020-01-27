@@ -7,6 +7,12 @@ import torch.nn.functional as F
 # can use the below import should you choose to initialize the weights of your Net
 import torch.nn.init as I
 
+def init_weights(op):
+    if isinstance(op, nn.Conv2d) or isinstance(op, nn.Linear):
+        I.xavier_uniform_(op.weight)
+    if isinstance(op, nn.Linear):
+        op.bias.data.fill_(0.01)
+
 is_debug = False
 
 def print_layers(net):
@@ -66,13 +72,15 @@ class Net(nn.Module):
         self.conv5 = ConvBatch2d(128, 256, 3)
         self.pool5 = nn.MaxPool2d(2, 2)
 
+        self.dropout1 = nn.Dropout2d(p=0.1)
+
         self.conv6 = ConvBatch2d(256, 512, 3)
         self.pool6 = nn.MaxPool2d(2, 2)
 
-        self.dropout1 = nn.Dropout2d(p=0.1)
+        self.dropout2 = nn.Dropout2d(p=0.2)
 
         self.fc1 = nn.Linear(512, 256)
-        self.dropout2 = nn.Dropout(p=0.3)
+        self.dropout3 = nn.Dropout(p=0.4)
 
         self.fc2 = nn.Linear(256, 136)
 
@@ -141,6 +149,8 @@ class Net(nn.Module):
             print('{}: {}'.format(self.pool5._get_name(), x.size()))
             print('')
 
+        x = self.dropout1(x)
+
         x = self.conv6(x)
         if is_debug:
             print('')
@@ -153,7 +163,7 @@ class Net(nn.Module):
             print('{}: {}'.format(self.pool6._get_name(), x.size()))
             print('')
 
-        x = self.dropout1(x)
+        x = self.dropout2(x)
 
         x = x.view(-1, x.size(1) * x.size(2) * x.size(3))
 
@@ -167,7 +177,7 @@ class Net(nn.Module):
             print('')
             print('{}: {}'.format(self.fc1._get_name(), x.size()))
             print('')
-        x = self.dropout2(x)
+        x = self.dropout3(x)
 
         x = self.fc2(x)
         if is_debug:
